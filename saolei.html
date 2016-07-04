@@ -1,0 +1,106 @@
+<html>
+<head>
+    <meta HTTP-EQUIV="content-type" content="text/html charset = UTF-8">
+    <title></title>
+    <style type="text/css">
+        input{
+            height: 30px;
+            width: 30px;
+            font-size: 18px;
+            background-color: #cce3ec;
+        }
+    </style>
+    <script type="text/javascript">
+        var show = ['○','1','2','3','4','5','6','7','8','●','☆'];
+		var notice = ["游戏开始,加油!", "漂亮", "好的", "继续努力", "厉害", "太棒了", "很遗憾,游戏失败!", "恭喜,游戏通关!"];
+		var row = 6, col = 10;
+		var total = row*col, lei = Math.floor(total * 0.2), remain = total - lei;
+		var arr = new Array();
+		for (var i = 0; i < row; i++) {
+			arr[i] = new Array();
+			for (var j = 0; j < col; j++)
+				arr[i][j] = 0;
+		}
+		while(lei > 0) {
+			var m = Math.floor(Math.random() * row);
+			var n = Math.floor(Math.random() * col);
+			if (arr[m][n] == 9)
+				continue;
+			arr[m][n] = 9;
+			for (var i = -1; i < 2; i++) {
+				for (var j = -1; j < 2; j++) {
+					var newI = i + m, newJ = j + n;
+					if (newI < 0 || newJ < 0 || newI >= row || newJ >= col) continue;
+					if (arr[newI][newJ] == 9) continue;
+					arr[newI][newJ] += 1;
+				}
+			}
+			lei--;
+		}
+		function load(bombI, bombJ) {
+			var ele = document.getElementById("game");
+			var table = "<table border='1'><tr><th colspan=" + col + ">扫雷</th></tr>";
+			for (var i = 0; i < row; i++) {
+				table += "<tr>";
+				for (var j = 0; j < col; j++) {
+					if (!!bombI && !!bombJ) {
+						if (bombI == -1 && bombJ == -1)
+						{
+							table += "<td><input type='button' disabled='true' value=" + show[arr[i][j]] +" /></td>";
+						} else {
+							if (i == bombI && j == bombJ) {
+								table += "<td><input type='button' disabled='true' value=" + show[arr[i][j] + 1] +" /></td>";
+							} else {
+								table += "<td><input type='button' disabled='true' value=" + show[arr[i][j]] +" /></td>";
+							}
+						}
+					} else {
+						table += "<td><input type='button' id='" + i + "," + j + "' onclick='clc(this.id)' /></td>";
+					}
+				}
+				table += "</tr>";
+			}
+			table += "<tr><td id='notice' align='center' colspan='" + col*0.5 + "'>" + notice[0] + "</td>";
+			table += "<td align='center' colspan='" + col*0.5 + "'><a href=''>重新开始</a></td></tr></table>";
+			ele.innerHTML = table;
+		}
+		function clc(id) {
+			var ele = document.getElementById(id);
+			if (!ele || ele.value != '')
+				return;
+			var idxs = id.split(",");
+			var m = parseInt(idxs[0]), n=parseInt(idxs[1]);
+			var v = arr[m][n];
+			if (v == 9) {
+				load(m, n);
+				document.getElementById('notice').innerHTML=notice[notice.length - 2];
+				return;
+			}
+			ele.value=v;
+			ele.disabled=true;
+			remain--;
+			if (remain == 0) {
+				load(-1, -1);
+				document.getElementById('notice').innerHTML=notice[notice.length - 1];
+				return;
+			}
+			if (v != 0) {
+				document.getElementById('notice').innerHTML=notice[Math.floor(Math.random() * (notice.length - 3) + 1)];
+				return;
+			}
+
+			for (var i = -1; i < 2; i++) {
+				for (var j = -1; j < 2; j++) {
+					var newI = i + m, newJ = j + n;
+					if (newI < 0 || newJ < 0 || newI >= row || newJ >= col) 
+						continue;
+					clc(newI + "," + newJ);
+				}
+			}
+		}
+	</script>
+</head>
+<body onload="load()">
+	<div id="game" align="center"></div>
+</body>
+</html>
