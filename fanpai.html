@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <title>翻牌</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<style type="text/css">
+		input{
+			height:50px;
+			width:50px;
+			font-size: 18px;
+		}
+	</style>
+	<script type="text/javascript">
+		var icons = ["♣","♦","♥","♠","★","♧","♢","♡","♤","■","◆","●","▼","▲","◁","☆","▷","□","△","▽","○","▶","◀","◇"];
+		var notice_press = "请点击翻牌!";
+		var notice_over = "恭喜,游戏通关!";
+		var notice_another=["再点一个!", "仔细想想!", "目标在哪?", "赌一把么?"];
+		var notice_zan = ["成功!", "漂亮!", "完美!", "好极了", "太棒了", "厉害", "太牛了"];
+		var notice_cai = ["继续努力!", "加油哦!", "再接再厉!", "哦,不!","错误的选择!","真遗憾!", "就差一点", "好可惜"];
+		var step = 0;
+		var col = 4;	// 必须为偶数
+		var row = 5;	// 不限制奇偶
+		var max = col * row;
+		var halfCol = max / 2;
+		// 初始化
+		var arr = new Array();
+		for(var i = 0; i < halfCol; i++) {
+			arr[i] = i;
+			arr[halfCol + i] = i;
+		}
+
+		// 洗牌
+		var idx1 = -1, idx2 = -1, temp = -1;
+		for(var i = 0; i < 1000; i++) {
+			idx1 = rand(max);
+			idx2 = rand(max);
+			temp = arr[idx1];
+			arr[idx1] = arr[idx2];
+			arr[idx2] = temp;
+		}
+		function rand(m) {
+			return Math.floor(Math.random() * m);
+		}
+
+		// 展示
+		with(document) {
+			write("<div align='center'><table border='1'><tr><td colspan=" + col + "><div align='center'><h5>翻牌游戏</h5></div></td>");
+			for(var i = 0; i < max; i++) {
+				if (i % col == 0) {
+					write("</tr><tr>");
+				}
+				write("<td><input type='button' id=" + i + " onclick='pokerTurn(" + i + ")' value='' /></td>");
+			}
+			write("</tr><tr>");
+			write("<td colspan=" + col/2 + "><div align='center'><span id='steps'>步数:"+step+"</span></div></td>");
+			write("<td colspan=" + col/2 + "><div align='center'><span id='notice'>"+notice_press+"</span></div></td>");
+			write("</tr></table></div>");
+		}
+
+		// 翻牌逻辑
+		var firstIdx = -1, secondIdx = -1, flag = 0, correct=0;
+		function pokerTurn(idx) {
+			if (flag !== 0) { return; }
+			var ele = document.getElementById(idx);
+			if (ele.value !== '') { return; }
+			ele.value = icons[arr[idx]];
+			if (firstIdx == -1) {
+				firstIdx = idx;
+				document.getElementById('notice').innerHTML = notice_another[rand(notice_another.length)];
+			} else {
+				flag = 1, secondIdx = idx;
+				window.setTimeout(compare, 400);
+			}
+			document.getElementById('steps').innerHTML = "步数:" + ++step;
+		}
+		function compare() {
+			if (arr[firstIdx] !== arr[secondIdx]) {
+				document.getElementById(firstIdx).value = '';
+				document.getElementById(secondIdx).value = '';
+				document.getElementById('notice').innerHTML = notice_cai[rand(notice_cai.length)];
+			} else {
+				document.getElementById('notice').innerHTML = notice_zan[rand(notice_zan.length)];
+				if (++correct == max/2) {
+					document.getElementById('notice').innerHTML = notice_over;
+				}
+			}
+			firstIdx=-1, secondIdx=-1, flag = 0;
+		}
+	</script>
+  </head>
+  <body>
+  </body>
+</html>
