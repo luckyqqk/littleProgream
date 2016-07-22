@@ -1,0 +1,125 @@
+<!DOCTYPE html "W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html" charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        input{
+            height: 30px;
+            width: 30px;
+            font-size: 18px;
+            background-color: #FFFFFF;
+        }
+    </style>
+    <script type="text/javascript">
+        var notice = ["请开始","继续","成功"];
+        var show = [' ','墙','始','终','人'];
+        var road = 0, wall = 1, start = 2, end = 3, role = 4;
+        var row = 12, col = 12;
+        var arr = [];
+        var a = 0,b = 0;
+        //墙的数组
+        var wallArr = [];
+        function load() {
+            init();
+        }
+        function init() {
+            for(var i = 0;i < row;i++){
+                arr[i] = [];
+                for(var j = 0;j < col;j++){
+                    arr[i][j] = wall;
+                }
+            }
+
+            wallArr.push([0, 0]);
+            while (wallArr.length > 0){
+                var randIdx = Math.floor(Math.random()*wallArr.length);
+                var temp = wallArr.splice(randIdx,1);
+                var x = temp[0][0];
+                var y = temp[0][1];
+                makeRoad(x, y);
+            }
+            if (arr[row - 1][col - 1] != road) {
+                init();
+                return;
+            }
+            arr[0][0] = start;
+            arr[row - 1][col - 1] = end;
+            showHtml();
+
+        }
+
+        function makeRoad(x,y){
+            var addArr = [];
+            var count = 0;
+
+            var c = [-1,1];
+            for(var i in c) {
+                var m = x + c[i];
+                if (m > -1 && m < row) {
+                    if (arr[m][y] != wall) {
+                        count++;
+                    } else {
+                        addArr.push([m, y]);
+                    }
+                }
+
+                var n = y + c[i];
+                if (n >= 0 && n < col) {
+                    if (arr[x][n] != wall) {
+                        count++;
+                    } else {
+                        addArr.push([x, n]);
+                    }
+                }
+            }
+            if(count > 1){
+                return;
+            }
+            arr[x][y] = road;
+            wallArr =  wallArr.concat(addArr);
+        }
+
+        function showHtml() {
+            var str = "";
+            str +="<table border='1' align='center'>";
+
+            for(var i = -2;i<3;i++){
+                str += "<tr>";
+                for(var j = -2;j<3;j++){
+                    var x = a+ i,y = b+j;
+                    if(x<0||x>row-1||y<0||y>col-1){
+                        continue;
+                    }
+                    if(i == 0 && j == 0){
+                        str += "<td><input type='button' id="+x+","+y+" onclick = 'play("+x+","+y+")' value = '"+show[role]+"'/></td>"
+                    }else{
+                        str += "<td><input type='button' id="+x+","+y+" onclick = 'play("+x+","+y+")' value = '"+show[arr[x][y]]+"'/></td>"
+                    }
+                }
+                str += "</tr>";
+            }
+            str += "<tr></tr>";
+            str += "<td colspan="+col+"><div align='center'><span id='notice'>"+notice[0]+"</span></div></td>";
+            str += "</table>";
+            document.getElementById("game").innerHTML = str;
+        }
+
+
+        function play(x,y) {
+            if (arr[x][y] == wall || (a != x && b != y) || Math.abs((a + b) - (x + y)) != 1)
+                return;
+            a = x, b = y;
+            showHtml();
+            if (x == row - 1 && y == col -1) {
+                document.getElementById("notice").innerHTML = notice[2];
+            } else {
+                document.getElementById("notice").innerHTML = notice[1];
+            }
+        }
+    </script>
+</head>
+<body onload="load()">
+<div id="game" align="center"></div>
+</body>
+</html>
